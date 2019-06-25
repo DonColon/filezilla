@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.dardan.rrafshi</groupId>
-	<artifactId>ftp-client</artifactId>
+	<artifactId>filezilla</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
-	<name>ftp-client</name>
+	<name>filezilla</name>
 	<description>A ftp client written in java</description>
-	<url>https://github.com/DonColon/ftp-client</url>
+	<url>https://github.com/DonColon/filezilla</url>
 
 	<developers>
 		<developer>
