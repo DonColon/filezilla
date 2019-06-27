@@ -1,4 +1,4 @@
-package com.dardan.rrafshi.filezilla;
+package com.dardan.rrafshi.filezilla.model;
 
 public interface FilezillaSessionBuilder
 {

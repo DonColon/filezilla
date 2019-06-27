@@ -1,4 +1,6 @@
-package com.dardan.rrafshi.filezilla;
+package com.dardan.rrafshi.filezilla.model;
+
+import com.dardan.rrafshi.filezilla.Constants;
 
 public final class FilezillaSession
 {

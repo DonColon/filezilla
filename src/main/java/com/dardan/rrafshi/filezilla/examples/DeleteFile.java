@@ -1,7 +1,5 @@
 package com.dardan.rrafshi.filezilla.examples;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
 import org.slf4j.Logger;
@@ -13,9 +11,9 @@ import com.dardan.rrafshi.filezilla.FilezillaManager;
 import com.dardan.rrafshi.filezilla.model.FilezillaSession;
 
 
-public final class DownloadFile
+public final class DeleteFile
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(DownloadFile.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DeleteFile.class);
 
 
 	public static void main(final String[] args)
@@ -25,12 +23,11 @@ public final class DownloadFile
 				.build();
 
 		try(FilezillaManager filezillaManager = new FilezillaManager(session)) {
-			final Path targetPath = Paths.get("C:\\Users\\drraf\\Music\\Temp\\Why-Worry.mp3");
-			filezillaManager.downloadFile("/Why-Worry.mp3", targetPath);
+			filezillaManager.deleteFile("/Why-Worry.mp3");
 
 		} catch (final Exception exception) {
 
-			LOGGER.error("Download failed: ", exception);
+			LOGGER.error("Delete failed: ", exception);
 		}
 
 		LOGGER.info("Finished at " + LocalDateTime.now());

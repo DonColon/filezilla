@@ -9,6 +9,8 @@ import java.nio.file.Path;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 
+import com.dardan.rrafshi.filezilla.model.FilezillaSession;
+
 
 public final class FilezillaManager implements AutoCloseable
 {
@@ -39,9 +41,11 @@ public final class FilezillaManager implements AutoCloseable
 			this.client = new FTPClient();
 			this.client.connect(this.host, Integer.parseInt(this.port));
 
+			final String message = this.client.getReplyString();
 			final int code = this.client.getReplyCode();
+
 			if(!FTPReply.isPositiveCompletion(code))
-				this.client.disconnect();
+				throw new FilezillaException.NoConnection("Failed to connect to server " + this.host + ":" + this.port + " with " + message);
 
 			this.client.login(this.username, this.password);
 
@@ -87,6 +91,24 @@ public final class FilezillaManager implements AutoCloseable
 		} catch (final IOException exception) {
 
 			throw new FilezillaException.UploadFailed("Failed to upload file '" + originPath + "' to path '" + targetPath + "'", exception);
+		}
+	}
+
+	public void deleteFile(final String pathToFile)
+		throws FilezillaException.DeleteFailed
+	{
+		try {
+			this.client.deleteFile(pathToFile);
+
+			final String message = this.client.getReplyString();
+			final int code = this.client.getReplyCode();
+
+			if(!FTPReply.isPositiveCompletion(code))
+				throw new FilezillaException.DeleteFailed("Failed to delete file '" + pathToFile + "' with " + message);
+
+		} catch (final IOException exception) {
+
+			throw new FilezillaException.DeleteFailed("Failed to delete file '" + pathToFile + "'", exception);
 		}
 	}
 

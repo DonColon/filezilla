@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.dardan.rrafshi.commons.crypto.Passwords;
 import com.dardan.rrafshi.filezilla.Constants;
 import com.dardan.rrafshi.filezilla.FilezillaManager;
-import com.dardan.rrafshi.filezilla.FilezillaSession;
+import com.dardan.rrafshi.filezilla.model.FilezillaSession;
 
 
 public final class UploadFile

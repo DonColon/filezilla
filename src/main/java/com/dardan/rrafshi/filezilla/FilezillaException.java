@@ -13,11 +13,13 @@ public final class FilezillaException
 		private static final long serialVersionUID = 1L;
 
 
-		public NoConnection(final String message, final Throwable cause) {
+		public NoConnection(final String message, final Throwable cause)
+		{
 			super(message, cause);
 		}
 
-		public NoConnection(final String message) {
+		public NoConnection(final String message)
+		{
 			super(message);
 		}
 	}
@@ -27,11 +29,13 @@ public final class FilezillaException
 		private static final long serialVersionUID = 1L;
 
 
-		public DownloadFailed(final String message, final Throwable cause) {
+		public DownloadFailed(final String message, final Throwable cause)
+		{
 			super(message, cause);
 		}
 
-		public DownloadFailed(final String message) {
+		public DownloadFailed(final String message)
+		{
 			super(message);
 		}
 	}
@@ -41,11 +45,29 @@ public final class FilezillaException
 		private static final long serialVersionUID = 1L;
 
 
-		public UploadFailed(final String message, final Throwable cause) {
+		public UploadFailed(final String message, final Throwable cause)
+		{
 			super(message, cause);
 		}
 
-		public UploadFailed(final String message) {
+		public UploadFailed(final String message)
+		{
+			super(message);
+		}
+	}
+
+	public static class DeleteFailed extends ApplicationException
+	{
+		private static final long serialVersionUID = 1L;
+
+
+		public DeleteFailed(final String message, final Throwable cause)
+		{
+			super(message, cause);
+		}
+
+		public DeleteFailed(final String message)
+		{
 			super(message);
 		}
 	}
