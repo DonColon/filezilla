@@ -56,6 +56,22 @@ public final class FilezillaException
 		}
 	}
 
+	public static class CreateFailed extends ApplicationException
+	{
+		private static final long serialVersionUID = 1L;
+
+
+		public CreateFailed(final String message, final Throwable cause)
+		{
+			super(message, cause);
+		}
+
+		public CreateFailed(final String message)
+		{
+			super(message);
+		}
+	}
+
 	public static class DeleteFailed extends ApplicationException
 	{
 		private static final long serialVersionUID = 1L;

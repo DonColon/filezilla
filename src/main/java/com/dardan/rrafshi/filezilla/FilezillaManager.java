@@ -112,6 +112,24 @@ public final class FilezillaManager implements AutoCloseable
 		}
 	}
 
+	public void createFolder(final String pathToFolder)
+		throws FilezillaException.CreateFailed
+	{
+		try {
+			this.client.makeDirectory(pathToFolder);
+
+			final String message = this.client.getReplyString();
+			final int code = this.client.getReplyCode();
+
+			if(!FTPReply.isPositiveCompletion(code))
+				throw new FilezillaException.CreateFailed("Failed to create folder '" + pathToFolder + "' with " + message);
+
+		} catch (final IOException exception) {
+
+			throw new FilezillaException.CreateFailed("Failed to create folder '" + pathToFolder + "'", exception);
+		}
+	}
+
 	@Override
 	public void close()
 		throws Exception
