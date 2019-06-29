@@ -14,22 +14,16 @@ import com.dardan.rrafshi.filezilla.model.FilezillaSession;
 
 public final class FilezillaManager implements AutoCloseable
 {
-	private final String host;
-	private final String port;
-	private final String username;
-	private final String password;
-
-	private FTPClient client;
+	private final FilezillaSession session;
+	private final FTPClient client;
 
 
 	public FilezillaManager(final FilezillaSession session)
 		throws FilezillaException.NoConnection
 	{
-		this.host = session.getHost();
-		this.port = session.getPort();
-		this.username = session.getUsername();
-		this.password = session.getPassword();
+		this.session = session;
 
+		this.client = new FTPClient();
 		this.connect();
 	}
 
@@ -38,20 +32,19 @@ public final class FilezillaManager implements AutoCloseable
 		throws FilezillaException.NoConnection
 	{
 		try {
-			this.client = new FTPClient();
-			this.client.connect(this.host, Integer.parseInt(this.port));
+			this.client.connect(this.session.getHost(), Integer.parseInt(this.session.getPort()));
 
 			final String message = this.client.getReplyString();
 			final int code = this.client.getReplyCode();
 
 			if(!FTPReply.isPositiveCompletion(code))
-				throw new FilezillaException.NoConnection("Failed to connect to server " + this.host + ":" + this.port + " with " + message);
+				throw new FilezillaException.NoConnection("Failed to connect to server " + this.session.getHost() + ":" + this.session.getPort() + " with " + message);
 
-			this.client.login(this.username, this.password);
+			this.client.login(this.session.getUsername(), this.session.getPassword());
 
 		} catch (final IOException exception) {
 
-			throw new FilezillaException.NoConnection("Failed to connect to server " + this.host + ":" + this.port, exception);
+			throw new FilezillaException.NoConnection("Failed to connect to server " + this.session.getHost() + ":" + this.session.getPort(), exception);
 		}
 	}
 
@@ -127,6 +120,24 @@ public final class FilezillaManager implements AutoCloseable
 		} catch (final IOException exception) {
 
 			throw new FilezillaException.CreateFailed("Failed to create folder '" + pathToFolder + "'", exception);
+		}
+	}
+
+	public void deleteFolder(final String pathToFolder)
+		throws FilezillaException.DeleteFailed
+	{
+		try {
+			this.client.removeDirectory(pathToFolder);
+
+			final String message = this.client.getReplyString();
+			final int code = this.client.getReplyCode();
+
+			if(!FTPReply.isPositiveCompletion(code))
+				throw new FilezillaException.DeleteFailed("Failed to delete folder '" + pathToFolder + "' with " + message);
+
+		} catch (final IOException exception) {
+
+			throw new FilezillaException.DeleteFailed("Failed to delete folder '" + pathToFolder + "'", exception);
 		}
 	}
 
