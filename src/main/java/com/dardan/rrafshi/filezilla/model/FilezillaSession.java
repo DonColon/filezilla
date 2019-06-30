@@ -10,7 +10,8 @@ public final class FilezillaSession
 	private final String password;
 
 
-	public FilezillaSession(final FilezillaSessionBuilder builder) {
+	private FilezillaSession(final FilezillaSessionBuilder builder)
+	{
 		this.host = builder.getHost();
 		this.port = builder.getPort();
 		this.username = builder.getUsername();
@@ -50,7 +51,7 @@ public final class FilezillaSession
 	}
 
 
-	public static class Builder implements FilezillaSessionBuilder
+	private static class Builder implements FilezillaSessionBuilder
 	{
 		private final String host;
 		private final String port;
