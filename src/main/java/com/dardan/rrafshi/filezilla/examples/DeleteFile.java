@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.dardan.rrafshi.commons.crypto.Passwords;
 import com.dardan.rrafshi.filezilla.Constants;
 import com.dardan.rrafshi.filezilla.FilezillaManager;
+import com.dardan.rrafshi.filezilla.model.FilezillaPath;
 import com.dardan.rrafshi.filezilla.model.FilezillaSession;
 
 
@@ -23,7 +24,9 @@ public final class DeleteFile
 				.build();
 
 		try(FilezillaManager filezillaManager = new FilezillaManager(session)) {
-			filezillaManager.deleteFile("/Why-Worry.mp3");
+			final FilezillaPath targetPath = FilezillaPath.parse("/artists/all time low/future hearts/Something's Gotta Give.mp3");
+
+			filezillaManager.deleteFile(targetPath);
 
 		} catch (final Exception exception) {
 

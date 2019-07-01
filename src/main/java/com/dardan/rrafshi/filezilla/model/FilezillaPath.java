@@ -67,6 +67,11 @@ public final class FilezillaPath
 		return builder.build();
 	}
 
+	public FilezillaPath resolve(final String other)
+	{
+		return this.resolve(FilezillaPath.parse(other));
+	}
+
 	public FilezillaPath subpath(final int start, final int end)
 	{
 		if(this.pathSegments.isEmpty())

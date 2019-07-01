@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.dardan.rrafshi.commons.crypto.Passwords;
 import com.dardan.rrafshi.filezilla.Constants;
 import com.dardan.rrafshi.filezilla.FilezillaManager;
+import com.dardan.rrafshi.filezilla.model.FilezillaPath;
 import com.dardan.rrafshi.filezilla.model.FilezillaSession;
 
 
@@ -26,8 +27,10 @@ public final class UploadFile
 				.build();
 
 		try(FilezillaManager filezillaManager = new FilezillaManager(session)) {
-			final Path originPath = Paths.get("C:\\Users\\drraf\\Music\\Why-Worry.mp3");
-			filezillaManager.uploadFile(originPath, "/artists/");
+			final Path originPath = Paths.get("C:\\Users\\drraf\\Music\\Artists\\All Time Low\\Future Hearts\\Something's Gotta Give.mp3");
+			final FilezillaPath targetPath = FilezillaPath.parse("/artists/all time low/future hearts");
+
+			filezillaManager.uploadFile(originPath, targetPath);
 
 		} catch (final Exception exception) {
 
