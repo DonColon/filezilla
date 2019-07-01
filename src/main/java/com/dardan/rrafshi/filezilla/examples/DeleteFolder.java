@@ -26,7 +26,7 @@ public final class DeleteFolder
 		try(FilezillaManager filezillaManager = new FilezillaManager(session)) {
 			final FilezillaPath path = FilezillaPath.parse("/artists/all time low/future hearts");
 
-			filezillaManager.deleteFolder(path);
+			filezillaManager.deleteFolder(path, true);
 
 		} catch (final Exception exception) {
 

@@ -169,9 +169,21 @@ public final class FilezillaManager implements AutoCloseable
 		}
 	}
 
-	public void deleteFolder(final FilezillaPath pathToFolder)
-		throws FilezillaException.DeleteFailed
+	public void deleteFolder(final FilezillaPath pathToFolder, final boolean forceDelete)
+		throws FilezillaException.DeleteFailed, FilezillaException.ListingFailed
 	{
+		if(forceDelete) {
+			final List<FilezillaPath> filePaths = this.listFiles(pathToFolder);
+
+			for(final FilezillaPath filePath : filePaths)
+				this.deleteFile(filePath);
+
+			final List<FilezillaPath> folderPaths = this.listFolders(pathToFolder);
+
+			for(final FilezillaPath folderPath : folderPaths)
+				this.deleteFolder(folderPath, forceDelete);
+		}
+
 		try {
 			this.client.removeDirectory(pathToFolder.toString());
 
@@ -185,6 +197,12 @@ public final class FilezillaManager implements AutoCloseable
 
 			throw new FilezillaException.DeleteFailed("Failed to delete folder '" + pathToFolder + "'", exception);
 		}
+	}
+
+	public void deleteFolder(final FilezillaPath pathToFolder)
+		throws FilezillaException.DeleteFailed, FilezillaException.ListingFailed
+	{
+		this.deleteFolder(pathToFolder, false);
 	}
 
 	public List<FilezillaPath> listFolders(final FilezillaPath path, final Predicate<FilezillaPath> filter)
