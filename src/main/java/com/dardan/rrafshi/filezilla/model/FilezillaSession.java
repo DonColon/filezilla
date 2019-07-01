@@ -1,6 +1,9 @@
 package com.dardan.rrafshi.filezilla.model;
 
 import com.dardan.rrafshi.filezilla.Constants;
+import com.dardan.rrafshi.filezilla.FileTransferMode;
+import com.dardan.rrafshi.filezilla.FileType;
+
 
 public final class FilezillaSession
 {
@@ -9,6 +12,9 @@ public final class FilezillaSession
 	private final String username;
 	private final String password;
 
+	private final FileTransferMode fileTransferMode;
+	private final FileType fileType;
+
 
 	private FilezillaSession(final FilezillaSessionBuilder builder)
 	{
@@ -16,6 +22,8 @@ public final class FilezillaSession
 		this.port = builder.getPort();
 		this.username = builder.getUsername();
 		this.password = builder.getPassword();
+		this.fileTransferMode = builder.getFileTransferMode();
+		this.fileType = builder.getFileType();
 	}
 
 
@@ -39,6 +47,16 @@ public final class FilezillaSession
 		return this.password;
 	}
 
+	public FileTransferMode getFileTransferMode()
+	{
+		return this.fileTransferMode;
+	}
+
+	public FileType getFileType()
+	{
+		return this.fileType;
+	}
+
 
 	public static FilezillaSessionBuilder builder(final String host, final String port)
 	{
@@ -58,11 +76,16 @@ public final class FilezillaSession
 		private String username;
 		private String password;
 
+		private FileTransferMode fileTransferMode;
+		private FileType fileType;
+
 
 		public Builder(final String host, final String port)
 		{
 			this.host = host;
 			this.port = port;
+			this.fileTransferMode = FileTransferMode.STREAM;
+			this.fileType = FileType.BINARY;
 		}
 
 		public Builder()
@@ -70,12 +93,27 @@ public final class FilezillaSession
 			this(Constants.DEFAULT_FTP_HOST, Constants.DEFAULT_FTP_PORT);
 		}
 
+
 		@Override
 		public FilezillaSessionBuilder login(final String username, final String password)
 		{
 			this.username = username;
 			this.password = password;
 
+			return this;
+		}
+
+		@Override
+		public FilezillaSessionBuilder type(final FileType fileType)
+		{
+			this.fileType = fileType;
+			return this;
+		}
+
+		@Override
+		public FilezillaSessionBuilder transferMode(final FileTransferMode fileTransferMode)
+		{
+			this.fileTransferMode = fileTransferMode;
 			return this;
 		}
 
@@ -107,6 +145,18 @@ public final class FilezillaSession
 		public String getPassword()
 		{
 			return this.password;
+		}
+
+		@Override
+		public FileType getFileType()
+		{
+			return this.fileType;
+		}
+
+		@Override
+		public FileTransferMode getFileTransferMode()
+		{
+			return this.fileTransferMode;
 		}
 	}
 }

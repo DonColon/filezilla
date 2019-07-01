@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 
+import com.dardan.rrafshi.filezilla.model.FilezillaPath;
 import com.dardan.rrafshi.filezilla.model.FilezillaSession;
 
 
@@ -42,6 +43,9 @@ public final class FilezillaManager implements AutoCloseable
 
 			this.client.login(this.session.getUsername(), this.session.getPassword());
 
+			this.client.setFileType(this.session.getFileType().getType());
+			this.client.setFileTransferMode(this.session.getFileTransferMode().getMode());
+
 		} catch (final IOException exception) {
 
 			throw new FilezillaException.NoConnection("Failed to connect to server " + this.session.getHost() + ":" + this.session.getPort(), exception);
@@ -49,11 +53,11 @@ public final class FilezillaManager implements AutoCloseable
 	}
 
 
-	public void downloadFile(final String originPath, final Path targetPath)
+	public void downloadFile(final FilezillaPath originPath, final Path targetPath)
 		throws FilezillaException.DownloadFailed
 	{
 		try(OutputStream dataOut = Files.newOutputStream(targetPath)) {
-			this.client.retrieveFile(originPath, dataOut);
+			this.client.retrieveFile(originPath.toString(), dataOut);
 
 			final String message = this.client.getReplyString();
 			final int code = this.client.getReplyCode();
@@ -67,13 +71,13 @@ public final class FilezillaManager implements AutoCloseable
 		}
 	}
 
-	public void uploadFile(final Path originPath, final String targetPath)
+	public void uploadFile(final Path originPath, final FilezillaPath targetPath)
 		throws FilezillaException.UploadFailed
 	{
-		final String rootPath = targetPath + originPath.getFileName().toString();
+		final FilezillaPath rootPath = targetPath.resolve(originPath.getFileName().toString());
 
 		try(InputStream dataIn = Files.newInputStream(originPath)) {
-			this.client.storeFile(rootPath, dataIn);
+			this.client.storeFile(rootPath.toString(), dataIn);
 
 			final String message = this.client.getReplyString();
 			final int code = this.client.getReplyCode();
@@ -87,11 +91,11 @@ public final class FilezillaManager implements AutoCloseable
 		}
 	}
 
-	public void deleteFile(final String pathToFile)
+	public void deleteFile(final FilezillaPath pathToFile)
 		throws FilezillaException.DeleteFailed
 	{
 		try {
-			this.client.deleteFile(pathToFile);
+			this.client.deleteFile(pathToFile.toString());
 
 			final String message = this.client.getReplyString();
 			final int code = this.client.getReplyCode();
@@ -105,11 +109,11 @@ public final class FilezillaManager implements AutoCloseable
 		}
 	}
 
-	public void createFolder(final String pathToFolder)
+	public void createFolder(final FilezillaPath pathToFolder)
 		throws FilezillaException.CreateFailed
 	{
 		try {
-			this.client.makeDirectory(pathToFolder);
+			this.client.makeDirectory(pathToFolder.toString());
 
 			final String message = this.client.getReplyString();
 			final int code = this.client.getReplyCode();
@@ -123,11 +127,11 @@ public final class FilezillaManager implements AutoCloseable
 		}
 	}
 
-	public void deleteFolder(final String pathToFolder)
+	public void deleteFolder(final FilezillaPath pathToFolder)
 		throws FilezillaException.DeleteFailed
 	{
 		try {
-			this.client.removeDirectory(pathToFolder);
+			this.client.removeDirectory(pathToFolder.toString());
 
 			final String message = this.client.getReplyString();
 			final int code = this.client.getReplyCode();
