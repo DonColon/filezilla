@@ -12,8 +12,8 @@ public final class FilezillaSession
 	private final String username;
 	private final String password;
 
-	private final FileTransferMode fileTransferMode;
 	private final FileType fileType;
+	private final FileTransferMode fileTransferMode;
 
 
 	private FilezillaSession(final FilezillaSessionBuilder builder)
@@ -22,10 +22,24 @@ public final class FilezillaSession
 		this.port = builder.getPort();
 		this.username = builder.getUsername();
 		this.password = builder.getPassword();
-		this.fileTransferMode = builder.getFileTransferMode();
 		this.fileType = builder.getFileType();
+		this.fileTransferMode = builder.getFileTransferMode();
 	}
 
+
+	public FilezillaSessionBuilder newBuilder()
+	{
+		final Builder builder = new Builder();
+
+		builder.host = this.host;
+		builder.port = this.port;
+		builder.username = this.username;
+		builder.password = this.password;
+		builder.fileType = this.fileType;
+		builder.fileTransferMode = this.fileTransferMode;
+
+		return builder;
+	}
 
 	public String getHost()
 	{
@@ -71,21 +85,21 @@ public final class FilezillaSession
 
 	private static class Builder implements FilezillaSessionBuilder
 	{
-		private final String host;
-		private final String port;
+		private String host;
+		private String port;
 		private String username;
 		private String password;
 
-		private FileTransferMode fileTransferMode;
 		private FileType fileType;
+		private FileTransferMode fileTransferMode;
 
 
 		public Builder(final String host, final String port)
 		{
 			this.host = host;
 			this.port = port;
-			this.fileTransferMode = FileTransferMode.STREAM;
 			this.fileType = FileType.BINARY;
+			this.fileTransferMode = FileTransferMode.STREAM;
 		}
 
 		public Builder()

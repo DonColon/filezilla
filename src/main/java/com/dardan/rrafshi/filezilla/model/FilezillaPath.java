@@ -53,6 +53,16 @@ public final class FilezillaPath
 	}
 
 
+	public FilezillaPathBuilder newBuilder()
+	{
+		final Builder builder = new Builder();
+
+		builder.pathSegments = this.pathSegments;
+		builder.rootSegment = this.rootSegment;
+
+		return builder;
+	}
+
 	public FilezillaPath resolve(final FilezillaPath other)
 	{
 		final FilezillaPathBuilder builder = builder()
@@ -154,7 +164,7 @@ public final class FilezillaPath
 
 	private static class Builder implements FilezillaPathBuilder
 	{
-		private final List<String> pathSegments = new ArrayList<>();
+		private List<String> pathSegments = new ArrayList<>();
 		private String rootSegment;
 
 
