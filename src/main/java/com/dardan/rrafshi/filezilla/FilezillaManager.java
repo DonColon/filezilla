@@ -5,8 +5,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 
 import com.dardan.rrafshi.filezilla.model.FilezillaPath;
@@ -53,24 +57,6 @@ public final class FilezillaManager implements AutoCloseable
 	}
 
 
-	public void downloadFile(final FilezillaPath originPath, final Path targetPath)
-		throws FilezillaException.DownloadFailed
-	{
-		try(OutputStream dataOut = Files.newOutputStream(targetPath)) {
-			this.client.retrieveFile(originPath.toString(), dataOut);
-
-			final String message = this.client.getReplyString();
-			final int code = this.client.getReplyCode();
-
-			if(!FTPReply.isPositiveCompletion(code))
-				throw new FilezillaException.DownloadFailed("Failed to download file '" + originPath + "' to path '" + targetPath + "' with " + message);
-
-		} catch (final IOException exception) {
-
-			throw new FilezillaException.DownloadFailed("Failed to download file '" + originPath + "' to path '" + targetPath + "'", exception);
-		}
-	}
-
 	public void uploadFile(final Path originPath, final FilezillaPath targetPath)
 		throws FilezillaException.UploadFailed
 	{
@@ -91,6 +77,24 @@ public final class FilezillaManager implements AutoCloseable
 		}
 	}
 
+	public void downloadFile(final FilezillaPath originPath, final Path targetPath)
+		throws FilezillaException.DownloadFailed
+	{
+		try(OutputStream dataOut = Files.newOutputStream(targetPath)) {
+			this.client.retrieveFile(originPath.toString(), dataOut);
+
+			final String message = this.client.getReplyString();
+			final int code = this.client.getReplyCode();
+
+			if(!FTPReply.isPositiveCompletion(code))
+				throw new FilezillaException.DownloadFailed("Failed to download file '" + originPath + "' to path '" + targetPath + "' with " + message);
+
+		} catch (final IOException exception) {
+
+			throw new FilezillaException.DownloadFailed("Failed to download file '" + originPath + "' to path '" + targetPath + "'", exception);
+		}
+	}
+
 	public void deleteFile(final FilezillaPath pathToFile)
 		throws FilezillaException.DeleteFailed
 	{
@@ -107,6 +111,31 @@ public final class FilezillaManager implements AutoCloseable
 
 			throw new FilezillaException.DeleteFailed("Failed to delete file '" + pathToFile + "'", exception);
 		}
+	}
+
+	public List<FilezillaPath> listFiles(final FilezillaPath path)
+		throws FilezillaException.ListingFailed
+	{
+		final List<FilezillaPath> paths = new ArrayList<>();
+
+		try {
+			final FTPFile[] files = this.client.listFiles(path.toString());
+
+			final String message = this.client.getReplyString();
+			final int code = this.client.getReplyCode();
+
+			if(!FTPReply.isPositiveCompletion(code))
+				throw new FilezillaException.ListingFailed("Failed to list content of path '" + path + "' with " + message);
+
+			for(final FTPFile file : files)
+				paths.add(path.resolve(file.getName()));
+
+		} catch (final IOException exception) {
+
+			throw new FilezillaException.ListingFailed("Failed to list content of path '" + path + "'", exception);
+		}
+
+		return Collections.unmodifiableList(paths);
 	}
 
 	public void createFolder(final FilezillaPath pathToFolder)
@@ -149,7 +178,9 @@ public final class FilezillaManager implements AutoCloseable
 	public void close()
 		throws Exception
 	{
-		if(this.client != null)
+		if(this.client != null) {
+			this.client.logout();
 			this.client.disconnect();
+		}
 	}
 }

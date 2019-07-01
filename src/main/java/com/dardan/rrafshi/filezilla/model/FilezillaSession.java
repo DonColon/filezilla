@@ -104,7 +104,7 @@ public final class FilezillaSession
 		}
 
 		@Override
-		public FilezillaSessionBuilder type(final FileType fileType)
+		public FilezillaSessionBuilder fileType(final FileType fileType)
 		{
 			this.fileType = fileType;
 			return this;

@@ -7,9 +7,9 @@ public interface FilezillaSessionBuilder
 {
 	FilezillaSessionBuilder login(String username, String password);
 
-	FilezillaSessionBuilder type(FileType fileType);
+	FilezillaSessionBuilder fileType(FileType fileType);
 
-	FilezillaSessionBuilder transferMode(FileTransferMode mode);
+	FilezillaSessionBuilder transferMode(FileTransferMode fileTransferMode);
 
 	FilezillaSession build();
 
