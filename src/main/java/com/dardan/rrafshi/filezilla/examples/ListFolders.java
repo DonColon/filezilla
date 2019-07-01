@@ -13,9 +13,9 @@ import com.dardan.rrafshi.filezilla.model.FilezillaPath;
 import com.dardan.rrafshi.filezilla.model.FilezillaSession;
 
 
-public final class ListFiles
+public final class ListFolders
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ListFiles.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ListFolders.class);
 
 
 	public static void main(final String[] args)
@@ -27,7 +27,7 @@ public final class ListFiles
 		try(FilezillaManager filezillaManager = new FilezillaManager(session)) {
 			final FilezillaPath targetPath = FilezillaPath.parse("/artists/all time low/future hearts");
 
-			final List<FilezillaPath> paths = filezillaManager.listFiles(targetPath);
+			final List<FilezillaPath> paths = filezillaManager.listFolders(targetPath);
 
 			for(final FilezillaPath path : paths)
 				LOGGER.info(path.toString());

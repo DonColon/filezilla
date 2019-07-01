@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -113,10 +114,10 @@ public final class FilezillaManager implements AutoCloseable
 		}
 	}
 
-	public List<FilezillaPath> listFiles(final FilezillaPath path)
+	public List<FilezillaPath> listFiles(final FilezillaPath path, final Predicate<FilezillaPath> filter)
 		throws FilezillaException.ListingFailed
 	{
-		final List<FilezillaPath> paths = new ArrayList<>();
+		final List<FilezillaPath> filePaths = new ArrayList<>();
 
 		try {
 			final FTPFile[] files = this.client.listFiles(path.toString());
@@ -127,15 +128,27 @@ public final class FilezillaManager implements AutoCloseable
 			if(!FTPReply.isPositiveCompletion(code))
 				throw new FilezillaException.ListingFailed("Failed to list content of path '" + path + "' with " + message);
 
-			for(final FTPFile file : files)
-				paths.add(path.resolve(file.getName()));
+			for(final FTPFile file : files) {
+				if(file.isFile()) {
+					final FilezillaPath pathToFile = path.resolve(file.getName());
+					if(filter == null || filter.test(pathToFile)) {
+						filePaths.add(pathToFile);
+					}
+				}
+			}
 
 		} catch (final IOException exception) {
 
 			throw new FilezillaException.ListingFailed("Failed to list content of path '" + path + "'", exception);
 		}
 
-		return Collections.unmodifiableList(paths);
+		return Collections.unmodifiableList(filePaths);
+	}
+
+	public List<FilezillaPath> listFiles(final FilezillaPath path)
+		throws FilezillaException.ListingFailed
+	{
+		return this.listFiles(path, null);
 	}
 
 	public void createFolder(final FilezillaPath pathToFolder)
@@ -172,6 +185,43 @@ public final class FilezillaManager implements AutoCloseable
 
 			throw new FilezillaException.DeleteFailed("Failed to delete folder '" + pathToFolder + "'", exception);
 		}
+	}
+
+	public List<FilezillaPath> listFolders(final FilezillaPath path, final Predicate<FilezillaPath> filter)
+			throws FilezillaException.ListingFailed
+	{
+		final List<FilezillaPath> folderPaths = new ArrayList<>();
+
+		try {
+			final FTPFile[] folders = this.client.listFiles(path.toString());
+
+			final String message = this.client.getReplyString();
+			final int code = this.client.getReplyCode();
+
+			if(!FTPReply.isPositiveCompletion(code))
+				throw new FilezillaException.ListingFailed("Failed to list content of path '" + path + "' with " + message);
+
+			for(final FTPFile folder : folders) {
+				if(folder.isDirectory()) {
+					final FilezillaPath pathToFile = path.resolve(folder.getName());
+					if(filter == null || filter.test(pathToFile)) {
+						folderPaths.add(pathToFile);
+					}
+				}
+			}
+
+		} catch (final IOException exception) {
+
+			throw new FilezillaException.ListingFailed("Failed to list content of path '" + path + "'", exception);
+		}
+
+		return Collections.unmodifiableList(folderPaths);
+	}
+
+	public List<FilezillaPath> listFolders(final FilezillaPath path)
+		throws FilezillaException.ListingFailed
+	{
+		return this.listFolders(path, null);
 	}
 
 	@Override
