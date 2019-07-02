@@ -23,7 +23,7 @@ public final class UploadFile
 	public static void main(final String[] args)
 	{
 		final FilezillaSession session = FilezillaSession.builder()
-				.login(Constants.FTP_USERNAME, Passwords.getPasswordFromFile("filezilla"))
+				.login(Constants.DEFAULT_FTP_USERNAME, Passwords.getPasswordFromFile("filezilla"))
 				.build();
 
 		try(FilezillaManager filezillaManager = new FilezillaManager(session)) {

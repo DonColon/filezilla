@@ -25,7 +25,7 @@ public final class FilezillaManager implements AutoCloseable
 
 
 	public FilezillaManager(final FilezillaSession session)
-		throws FilezillaException.NoConnection
+		throws FilezillaException.NoConnection, FilezillaException.LoginDenied
 	{
 		this.session = session;
 
@@ -35,18 +35,24 @@ public final class FilezillaManager implements AutoCloseable
 
 
 	private void connect()
-		throws FilezillaException.NoConnection
+		throws FilezillaException.NoConnection, FilezillaException.LoginDenied
 	{
 		try {
 			this.client.connect(this.session.getHost(), Integer.parseInt(this.session.getPort()));
 
-			final String message = this.client.getReplyString();
-			final int code = this.client.getReplyCode();
+			String message = this.client.getReplyString();
+			int code = this.client.getReplyCode();
 
 			if(!FTPReply.isPositiveCompletion(code))
 				throw new FilezillaException.NoConnection("Failed to connect to server " + this.session.getHost() + ":" + this.session.getPort() + " with " + message);
 
 			this.client.login(this.session.getUsername(), this.session.getPassword());
+
+			message = this.client.getReplyString();
+			code = this.client.getReplyCode();
+
+			if(!FTPReply.isPositiveCompletion(code))
+				throw new FilezillaException.LoginDenied("Failed to login to server " + this.session.getHost() + ":" + this.session.getPort() + " with " + message);
 
 			this.client.setFileType(this.session.getFileType().getType());
 			this.client.setFileTransferMode(this.session.getFileTransferMode().getMode());
@@ -61,10 +67,10 @@ public final class FilezillaManager implements AutoCloseable
 	public void uploadFile(final Path originPath, final FilezillaPath targetPath)
 		throws FilezillaException.UploadFailed
 	{
-		final FilezillaPath rootPath = targetPath.resolve(originPath.getFileName().toString());
+		final FilezillaPath pathToFile = targetPath.resolve(originPath.getFileName().toString());
 
 		try(InputStream dataIn = Files.newInputStream(originPath)) {
-			this.client.storeFile(rootPath.toString(), dataIn);
+			this.client.storeFile(pathToFile.toString(), dataIn);
 
 			final String message = this.client.getReplyString();
 			final int code = this.client.getReplyCode();
@@ -81,7 +87,9 @@ public final class FilezillaManager implements AutoCloseable
 	public void downloadFile(final FilezillaPath originPath, final Path targetPath)
 		throws FilezillaException.DownloadFailed
 	{
-		try(OutputStream dataOut = Files.newOutputStream(targetPath)) {
+		final Path pathToFile = targetPath.resolve(originPath.getFileName().toString());
+
+		try(OutputStream dataOut = Files.newOutputStream(pathToFile)) {
 			this.client.retrieveFile(originPath.toString(), dataOut);
 
 			final String message = this.client.getReplyString();
@@ -114,23 +122,23 @@ public final class FilezillaManager implements AutoCloseable
 		}
 	}
 
-	public List<FilezillaPath> listFiles(final FilezillaPath path, final Predicate<FilezillaPath> filter)
+	public List<FilezillaPath> listFiles(final FilezillaPath parentPath, final Predicate<FilezillaPath> filter)
 		throws FilezillaException.ListingFailed
 	{
 		final List<FilezillaPath> filePaths = new ArrayList<>();
 
 		try {
-			final FTPFile[] files = this.client.listFiles(path.toString());
+			final FTPFile[] files = this.client.listFiles(parentPath.toString());
 
 			final String message = this.client.getReplyString();
 			final int code = this.client.getReplyCode();
 
 			if(!FTPReply.isPositiveCompletion(code))
-				throw new FilezillaException.ListingFailed("Failed to list content of path '" + path + "' with " + message);
+				throw new FilezillaException.ListingFailed("Failed to list content of path '" + parentPath + "' with " + message);
 
 			for(final FTPFile file : files) {
 				if(file.isFile()) {
-					final FilezillaPath pathToFile = path.resolve(file.getName());
+					final FilezillaPath pathToFile = parentPath.resolve(file.getName());
 					if(filter == null || filter.test(pathToFile)) {
 						filePaths.add(pathToFile);
 					}
@@ -139,16 +147,16 @@ public final class FilezillaManager implements AutoCloseable
 
 		} catch (final IOException exception) {
 
-			throw new FilezillaException.ListingFailed("Failed to list content of path '" + path + "'", exception);
+			throw new FilezillaException.ListingFailed("Failed to list content of path '" + parentPath + "'", exception);
 		}
 
 		return Collections.unmodifiableList(filePaths);
 	}
 
-	public List<FilezillaPath> listFiles(final FilezillaPath path)
+	public List<FilezillaPath> listFiles(final FilezillaPath parentPath)
 		throws FilezillaException.ListingFailed
 	{
-		return this.listFiles(path, null);
+		return this.listFiles(parentPath, null);
 	}
 
 	public void createFolder(final FilezillaPath pathToFolder)
@@ -205,23 +213,23 @@ public final class FilezillaManager implements AutoCloseable
 		this.deleteFolder(pathToFolder, false);
 	}
 
-	public List<FilezillaPath> listFolders(final FilezillaPath path, final Predicate<FilezillaPath> filter)
+	public List<FilezillaPath> listFolders(final FilezillaPath parentPath, final Predicate<FilezillaPath> filter)
 			throws FilezillaException.ListingFailed
 	{
 		final List<FilezillaPath> folderPaths = new ArrayList<>();
 
 		try {
-			final FTPFile[] folders = this.client.listFiles(path.toString());
+			final FTPFile[] folders = this.client.listFiles(parentPath.toString());
 
 			final String message = this.client.getReplyString();
 			final int code = this.client.getReplyCode();
 
 			if(!FTPReply.isPositiveCompletion(code))
-				throw new FilezillaException.ListingFailed("Failed to list content of path '" + path + "' with " + message);
+				throw new FilezillaException.ListingFailed("Failed to list content of path '" + parentPath + "' with " + message);
 
 			for(final FTPFile folder : folders) {
 				if(folder.isDirectory()) {
-					final FilezillaPath pathToFile = path.resolve(folder.getName());
+					final FilezillaPath pathToFile = parentPath.resolve(folder.getName());
 					if(filter == null || filter.test(pathToFile)) {
 						folderPaths.add(pathToFile);
 					}
@@ -230,16 +238,55 @@ public final class FilezillaManager implements AutoCloseable
 
 		} catch (final IOException exception) {
 
-			throw new FilezillaException.ListingFailed("Failed to list content of path '" + path + "'", exception);
+			throw new FilezillaException.ListingFailed("Failed to list content of path '" + parentPath + "'", exception);
 		}
 
 		return Collections.unmodifiableList(folderPaths);
 	}
 
-	public List<FilezillaPath> listFolders(final FilezillaPath path)
+	public List<FilezillaPath> listFolders(final FilezillaPath parentPath)
 		throws FilezillaException.ListingFailed
 	{
-		return this.listFolders(path, null);
+		return this.listFolders(parentPath, null);
+	}
+
+	public void move(final FilezillaPath from, final FilezillaPath to)
+		throws FilezillaException.MovingFailed
+	{
+		try {
+			this.client.rename(from.toString(), to.toString());
+
+			final String message = this.client.getReplyString();
+			final int code = this.client.getReplyCode();
+
+			if(!FTPReply.isPositiveCompletion(code))
+				throw new FilezillaException.MovingFailed("Failed to move file from '" + from + "' to '" + to + "' with " + message);
+
+		} catch (final IOException exception) {
+
+			throw new FilezillaException.MovingFailed("Failed to move file from '" + from + "' to '" + to + "'", exception);
+		}
+	}
+
+	public void rename(final FilezillaPath path, final String newName)
+		throws FilezillaException.RenamingFailed
+	{
+		final FilezillaPath parentPath = path.getParent();
+		final FilezillaPath newPath = parentPath.resolve(newName);
+
+		try {
+			this.client.rename(path.toString(), newPath.toString());
+
+			final String message = this.client.getReplyString();
+			final int code = this.client.getReplyCode();
+
+			if(!FTPReply.isPositiveCompletion(code))
+				throw new FilezillaException.RenamingFailed("Failed to rename file from '" + path + "' to '" + newPath + "' with " + message);
+
+		} catch (final IOException exception) {
+
+			throw new FilezillaException.RenamingFailed("Failed to rename file from '" + path + "' to '" + newPath + "'", exception);
+		}
 	}
 
 	@Override

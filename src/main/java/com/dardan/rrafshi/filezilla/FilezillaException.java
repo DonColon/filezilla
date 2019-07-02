@@ -24,6 +24,22 @@ public final class FilezillaException
 		}
 	}
 
+	public static class LoginDenied extends ApplicationException
+	{
+		private static final long serialVersionUID = -4924245797696871320L;
+
+
+		public LoginDenied(final String message, final Throwable cause)
+		{
+			super(message, cause);
+		}
+
+		public LoginDenied(final String message)
+		{
+			super(message);
+		}
+	}
+
 	public static class DownloadFailed extends ApplicationException
 	{
 		private static final long serialVersionUID = 1L;
@@ -99,6 +115,38 @@ public final class FilezillaException
 		}
 
 		public ListingFailed(final String message)
+		{
+			super(message);
+		}
+	}
+
+	public static class MovingFailed extends ApplicationException
+	{
+		private static final long serialVersionUID = 1L;
+
+
+		public MovingFailed(final String message, final Throwable cause)
+		{
+			super(message, cause);
+		}
+
+		public MovingFailed(final String message)
+		{
+			super(message);
+		}
+	}
+
+	public static class RenamingFailed extends ApplicationException
+	{
+		private static final long serialVersionUID = 1L;
+
+
+		public RenamingFailed(final String message, final Throwable cause)
+		{
+			super(message, cause);
+		}
+
+		public RenamingFailed(final String message)
 		{
 			super(message);
 		}

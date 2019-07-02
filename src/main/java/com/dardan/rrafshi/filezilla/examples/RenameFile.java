@@ -1,7 +1,5 @@
 package com.dardan.rrafshi.filezilla.examples;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
 import org.slf4j.Logger;
@@ -14,9 +12,9 @@ import com.dardan.rrafshi.filezilla.model.FilezillaPath;
 import com.dardan.rrafshi.filezilla.model.FilezillaSession;
 
 
-public final class DownloadFile
+public final class RenameFile
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(DownloadFile.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ListFolders.class);
 
 
 	public static void main(final String[] args)
@@ -26,14 +24,13 @@ public final class DownloadFile
 				.build();
 
 		try(FilezillaManager filezillaManager = new FilezillaManager(session)) {
-			final Path targetPath = Paths.get("C:\\Users\\drraf\\Music\\Temp\\Something's Gotta Give.mp3");
-			final FilezillaPath originPath = FilezillaPath.parse("/artists/all time low/future hearts/Something's Gotta Give.mp3");
+			final FilezillaPath path = FilezillaPath.parse("/artists/all time low/future hearts/Something's Gotta Give.mp3");
 
-			filezillaManager.downloadFile(originPath, targetPath);
+			filezillaManager.rename(path, "somethings-gotta-give.mp3");
 
 		} catch (final Exception exception) {
 
-			LOGGER.error("Download failed: ", exception);
+			LOGGER.error("Rename failed: ", exception);
 		}
 
 		LOGGER.info("Finished at " + LocalDateTime.now());
