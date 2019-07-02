@@ -1,6 +1,5 @@
 package com.dardan.rrafshi.filezilla.examples;
 
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -15,7 +14,7 @@ import com.dardan.rrafshi.filezilla.model.FilezillaPath;
 import com.dardan.rrafshi.filezilla.model.FilezillaSession;
 
 
-public final class UploadFile
+public final class UploadFolder
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UploadFile.class);
 
@@ -27,10 +26,10 @@ public final class UploadFile
 				.build();
 
 		try(FilezillaManager filezillaManager = new FilezillaManager(session)) {
-			final Path originPath = Paths.get("C:\\Users\\drraf\\Music\\Artists\\All Time Low\\Future Hearts\\Something's Gotta Give.mp3");
-			final FilezillaPath targetPath = FilezillaPath.parse("/artists/all time low/future hearts");
+			final Path originPath = Paths.get("C:\\Users\\drraf\\Music\\Temp\\all time low");
+			final FilezillaPath targetPath = FilezillaPath.parse("/artists");
 
-			filezillaManager.uploadFile(originPath, targetPath);
+			filezillaManager.uploadFolder(originPath, targetPath);
 
 		} catch (final Exception exception) {
 

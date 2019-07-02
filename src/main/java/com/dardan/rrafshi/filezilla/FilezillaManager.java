@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -159,6 +160,49 @@ public final class FilezillaManager implements AutoCloseable
 		return this.listFiles(parentPath, null);
 	}
 
+	public void uploadFolder(final Path originPath, final FilezillaPath targetPath)
+		throws FilezillaException.UploadFailed
+	{
+		try {
+			final FilezillaPath parentPath = targetPath.resolve(originPath.getFileName().toString());
+			this.createFolder(parentPath);
+
+			final List<Path> paths = Files.list(originPath).collect(Collectors.toList());
+			for(final Path path : paths)
+				if(Files.isDirectory(path))
+					this.uploadFolder(path, parentPath);
+				else
+					this.uploadFile(path, parentPath);
+
+		} catch (final IOException | FilezillaException.CreateFailed exception) {
+
+			throw new FilezillaException.UploadFailed("Failed to upload folder '" + originPath + "' to path '" + targetPath + "'", exception);
+		}
+	}
+
+	public void downloadFolder(final FilezillaPath originPath, final Path targetPath)
+		throws FilezillaException.DownloadFailed
+	{
+		try {
+			final Path parentPath = targetPath.resolve(originPath.getFileName().toString());
+			Files.createDirectories(parentPath);
+
+			final List<FilezillaPath> filePaths = this.listFiles(originPath);
+
+			for(final FilezillaPath filePath : filePaths)
+				this.downloadFile(filePath, parentPath);
+
+			final List<FilezillaPath> folderPaths = this.listFolders(originPath);
+
+			for(final FilezillaPath folderPath : folderPaths)
+				this.downloadFolder(folderPath, parentPath);
+
+		} catch (final IOException | FilezillaException.ListingFailed exception) {
+
+			throw new FilezillaException.DownloadFailed("Failed to download file '" + originPath + "' to path '" + targetPath + "'", exception);
+		}
+	}
+
 	public void createFolder(final FilezillaPath pathToFolder)
 		throws FilezillaException.CreateFailed
 	{
@@ -178,21 +222,21 @@ public final class FilezillaManager implements AutoCloseable
 	}
 
 	public void deleteFolder(final FilezillaPath pathToFolder, final boolean forceDelete)
-		throws FilezillaException.DeleteFailed, FilezillaException.ListingFailed
+		throws FilezillaException.DeleteFailed
 	{
-		if(forceDelete) {
-			final List<FilezillaPath> filePaths = this.listFiles(pathToFolder);
-
-			for(final FilezillaPath filePath : filePaths)
-				this.deleteFile(filePath);
-
-			final List<FilezillaPath> folderPaths = this.listFolders(pathToFolder);
-
-			for(final FilezillaPath folderPath : folderPaths)
-				this.deleteFolder(folderPath, forceDelete);
-		}
-
 		try {
+			if(forceDelete) {
+				final List<FilezillaPath> filePaths = this.listFiles(pathToFolder);
+
+				for(final FilezillaPath filePath : filePaths)
+					this.deleteFile(filePath);
+
+				final List<FilezillaPath> folderPaths = this.listFolders(pathToFolder);
+
+				for(final FilezillaPath folderPath : folderPaths)
+					this.deleteFolder(folderPath, forceDelete);
+			}
+
 			this.client.removeDirectory(pathToFolder.toString());
 
 			final String message = this.client.getReplyString();
@@ -201,7 +245,7 @@ public final class FilezillaManager implements AutoCloseable
 			if(!FTPReply.isPositiveCompletion(code))
 				throw new FilezillaException.DeleteFailed("Failed to delete folder '" + pathToFolder + "' with " + message);
 
-		} catch (final IOException exception) {
+		} catch (final IOException | FilezillaException.ListingFailed exception) {
 
 			throw new FilezillaException.DeleteFailed("Failed to delete folder '" + pathToFolder + "'", exception);
 		}
