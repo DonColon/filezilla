@@ -26,7 +26,7 @@ public final class CreateFolder
 		try(FilezillaManager filezillaManager = new FilezillaManager(session)) {
 			final FilezillaPath path = FilezillaPath.parse("/artists/all time low/future hearts");
 
-			filezillaManager.createFolder(path);
+			filezillaManager.createFolders(path);
 
 		} catch (final Exception exception) {
 

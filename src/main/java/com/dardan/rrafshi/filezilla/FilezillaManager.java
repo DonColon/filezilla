@@ -160,12 +160,18 @@ public final class FilezillaManager implements AutoCloseable
 		return this.listFiles(parentPath, null);
 	}
 
+	public List<FilezillaPath> listFiles()
+		throws FilezillaException.ListingFailed
+	{
+		return this.listFiles(this.currentWorkingDirectory());
+	}
+
 	public void uploadFolder(final Path originPath, final FilezillaPath targetPath)
 		throws FilezillaException.UploadFailed
 	{
 		try {
 			final FilezillaPath parentPath = targetPath.resolve(originPath.getFileName().toString());
-			this.createFolder(parentPath);
+			this.createFolders(parentPath);
 
 			final List<Path> paths = Files.list(originPath).collect(Collectors.toList());
 			for(final Path path : paths)
@@ -203,7 +209,7 @@ public final class FilezillaManager implements AutoCloseable
 		}
 	}
 
-	public void createFolder(final FilezillaPath pathToFolder)
+	public void createFolders(final FilezillaPath pathToFolder)
 		throws FilezillaException.CreateFailed
 	{
 		try {
@@ -294,6 +300,12 @@ public final class FilezillaManager implements AutoCloseable
 		return this.listFolders(parentPath, null);
 	}
 
+	public List<FilezillaPath> listFolders()
+		throws FilezillaException.ListingFailed
+	{
+		return this.listFolders(this.currentWorkingDirectory());
+	}
+
 	public void move(final FilezillaPath from, final FilezillaPath to)
 		throws FilezillaException.MovingFailed
 	{
@@ -330,6 +342,42 @@ public final class FilezillaManager implements AutoCloseable
 		} catch (final IOException exception) {
 
 			throw new FilezillaException.RenamingFailed("Failed to rename file from '" + path + "' to '" + newPath + "'", exception);
+		}
+	}
+
+	public void changeWorkingDirectory(final FilezillaPath path)
+		throws FilezillaException.DirectoryNotFound
+	{
+		try {
+			this.client.changeWorkingDirectory(path.toString());
+
+			final String message = this.client.getReplyString();
+			final int code = this.client.getReplyCode();
+
+			if(!FTPReply.isPositiveCompletion(code))
+				throw new FilezillaException.DirectoryNotFound("Failed to change working directory to '" + path + "' with " + message);
+
+		} catch (final IOException exception) {
+
+			throw new FilezillaException.DirectoryNotFound("Failed to change working directory to '" + path + "'", exception);
+		}
+	}
+
+	public FilezillaPath currentWorkingDirectory()
+	{
+		try {
+			final String currentPath = this.client.printWorkingDirectory();
+
+			final int code = this.client.getReplyCode();
+
+			if(!FTPReply.isPositiveCompletion(code))
+				return null;
+
+			return FilezillaPath.parse(currentPath);
+
+		} catch (final IOException exception) {
+
+			return null;
 		}
 	}
 

@@ -26,7 +26,7 @@ public final class FilezillaException
 
 	public static class LoginDenied extends ApplicationException
 	{
-		private static final long serialVersionUID = -4924245797696871320L;
+		private static final long serialVersionUID = 1L;
 
 
 		public LoginDenied(final String message, final Throwable cause)
@@ -147,6 +147,22 @@ public final class FilezillaException
 		}
 
 		public RenamingFailed(final String message)
+		{
+			super(message);
+		}
+	}
+
+	public static class DirectoryNotFound extends ApplicationException
+	{
+		private static final long serialVersionUID = 1L;
+
+
+		public DirectoryNotFound(final String message, final Throwable cause)
+		{
+			super(message, cause);
+		}
+
+		public DirectoryNotFound(final String message)
 		{
 			super(message);
 		}
