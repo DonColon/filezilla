@@ -15,7 +15,7 @@ public enum FileTransferMode
 	private final int mode;
 
 
-	private FileTransferMode(final int mode)
+	FileTransferMode(final int mode)
 	{
 		this.mode = mode;
 	}

@@ -26,7 +26,7 @@ public final class DownloadFile
 				.build();
 
 		try(FilezillaManager filezillaManager = new FilezillaManager(session)) {
-			final Path targetPath = Paths.get("C:\\Users\\drraf\\Music\\Temp\\Something's Gotta Give.mp3");
+			final Path targetPath = Paths.get("C:\\Users\\drraf\\Music\\Temp");
 			final FilezillaPath originPath = FilezillaPath.parse("/artists/all time low/future hearts/Something's Gotta Give.mp3");
 
 			filezillaManager.downloadFile(originPath, targetPath);

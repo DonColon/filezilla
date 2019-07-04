@@ -18,7 +18,7 @@ public enum FileType
 	private final int type;
 
 
-	private FileType(final String name, final int type)
+	FileType(final String name, final int type)
 	{
 		this.name = name;
 		this.type = type;
