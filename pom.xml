@@ -14,7 +14,7 @@
 	<developers>
 		<developer>
 			<name>Dardan Rrafshi</name>
-			<email>drrafshi@hotmail.de</email>
+			<email>dardan.rrafshi@gmail.com</email>
 			<roles>
 				<role>developer</role>
 			</roles>
@@ -27,6 +27,14 @@
 			<url>https://github.com/DonColon/${project.name}/blob/master/LICENSE</url>
 		</license>
 	</licenses>
+	
+	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub DonColon Apache Maven Packages</name>
+			<url>https://maven.pkg.github.com/doncolon/maven</url>
+		</repository>
+	</distributionManagement>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -38,7 +46,7 @@
 		<dependency>
 			<groupId>com.dardan.rrafshi</groupId>
 			<artifactId>commons</artifactId>
-			<version>1.0.0</version>
+			<version>1.2.0</version>
 		</dependency>
 
 		<dependency>
